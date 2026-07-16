@@ -1,24 +1,22 @@
 import streamlit as st
-import socket
-import threading
-from queue import Queue
+import requests
 
-# 1. Page Configuration (Stylish UI)
+# 1. Page Configuration (Stylish Dark Cyber Theme)
 st.set_page_config(
-    page_title="CyberToolkit Enterprise",
-    page_icon="🛡️",
+    page_title="CyberToolkit - Breach Checker",
+    page_icon="🔓",
     layout="centered"
 )
 
-# Custom Styling
+# Custom Styling (Cyber Look)
 st.markdown("""
     <style>
     .main-title {
         font-size: 40px;
         font-weight: bold;
-        color: #00FFCC;
+        color: #FF3366;
         text-align: center;
-        margin-bottom: 10px;
+        margin-bottom: 5px;
     }
     .subtitle {
         color: #888888;
@@ -28,68 +26,64 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="main-title">🛡️ CyberToolkit Enterprise</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Next-Gen Port Scanner & Network Utility</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">🔓 CyberToolkit Enterprise</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Have I Been Pwned? — Email Leak Checker</div>', unsafe_allow_html=True)
 
-# 2. Input Fields
-target_ip = st.text_input("🎯 Target Host / IP Address", placeholder="e.g., 127.0.0.1 or scanme.nmap.org")
+# 2. Input Field for Email
+email = st.text_input("📧 Enter Email Address to Check", placeholder="example@gmail.com")
 
-col1, col2 = st.columns(2)
-with col1:
-    start_port = st.number_input("⚡ Start Port", min_value=1, max_value=65535, value=1)
-with col2:
-    end_port = st.number_input("🛑 End Port", min_value=1, max_value=65535, value=100)
-
-# 3. Port Scanning Logic (Fast Threaded Scanner)
-def scan_port(ip, port, queue):
-    try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(1.0)
-        result = sock.connect_ex((ip, port))
-        if result == 0:
-            queue.put(port)
-        sock.close()
-    except Exception:
-        pass
-
-def start_scan(ip, s_port, e_port):
-    queue = Queue()
-    threads = []
+# 3. Check Logic using Hibp Api (Using HaveIBeenPwned API or free open-source alternative like HaveIBeenPwned proxy)
+def check_email_leak(email_to_check):
+    # Free alternative / public API for breach check (HIBP officially requires an API key, so we use a public API lookup)
+    url = f"https://api.breachdirectory.org/v1/secure?email={email_to_check}" # Or any other public API you were using
+    # Note: If you have your own HIBP API Key, you can add headers:
+    # headers = {"hibp-api-key": "YOUR_KEY_HERE"}
     
-    for port in range(s_port, e_port + 1):
-        thread = threading.Thread(target=scan_port, args=(ip, port, queue))
-        threads.append(thread)
-        thread.start()
+    # For a stable and free alternative, we can also check HIBP's public ranges if you used that,
+    # but here is a simple public lookup simulation/fetch:
+    try:
+        response = requests.get(f"https://api.pwnedpasswords.com/range/abcde") # Example connection test
+        # Let's perform the real API call that you configured in your original code:
+        # (Using a standard public endpoint or mock check if key is not there)
         
-    for thread in threads:
-        thread.join()
+        # HIBP Direct Lookup (Requires API Key in reality, otherwise returns 401/403)
+        headers = {
+            "User-Agent": "CyberToolkit-App",
+        }
+        api_url = f"https://haveibeenpwned.com/api/v3/breachedaccount/{email_to_check}"
+        res = requests.get(api_url, headers=headers)
         
-    open_ports = []
-    while not queue.empty():
-        open_ports.append(queue.get())
-    return sorted(open_ports)
+        if res.status_code == 200:
+            return True, res.json() # Found breaches
+        elif res.status_code == 404:
+            return False, [] # Safe!
+        elif res.status_code == 401 or res.status_code == 403:
+            return None, "API_KEY_REQUIRED"
+        else:
+            return None, "ERROR"
+    except Exception as e:
+        return None, str(e)
 
-# 4. Trigger Scan
-if st.button("🚀 Start Scanning Target", use_container_width=True):
-    if not target_ip:
-        st.error("Bhai, pehle Target IP ya Hostname toh enter karo! 😅")
+# 4. Trigger Check
+if st.button("🔍 Scan for Breaches", use_container_width=True):
+    if not email:
+        st.warning("Bhai, pehle email toh likho! 🤨")
+    elif "@" not in email or "." not in email:
+        st.error("Email address sahi format mein nahi hai.")
     else:
-        with st.spinner(f"Scanning {target_ip} from port {start_port} to {end_port}..."):
-            try:
-                # Resolve domain to IP if needed
-                resolved_ip = socket.gethostbyname(target_ip)
-                st.info(f"Scanning IP: {resolved_ip}")
-                
-                results = start_scan(resolved_ip, start_port, end_port)
-                
-                st.success("Scan Completed!")
-                if results:
-                    st.write("### 🟢 Open Ports Found:")
-                    for p in results:
-                        st.markdown(f"- **Port {p}**: OPEN")
-                else:
-                    st.warning("Koi open port nahi mila is range mein.")
-            except socket.gaierror:
-                st.error("Invalid Hostname/IP! Connection fail ho gayi.")
-            except Exception as e:
-                st.error(f"Error occurred: {str(e)}")
+        with st.spinner(f"Checking data breaches for {email}..."):
+            is_pwned, data = check_email_leak(email)
+            
+            if is_pwned is True:
+                st.error(f"🚨 Oh No! This email has been PWNED/LEAKED!")
+                st.write("### 📂 Found in the following breaches:")
+                for breach in data:
+                    st.markdown(f"- **{breach.get('Name', 'Unknown')}**: {breach.get('Domain', 'N/A')} (Date: {breach.get('BreachDate', 'N/A')})")
+            elif is_pwned is False:
+                st.success("🎉 Good news! No breaches found. Your email is SAFE!")
+            elif data == "API_KEY_REQUIRED":
+                # If HIBP key is missing, we can show a demo response or ask for key
+                st.warning("⚠️ HIBP API requires an authorized API Key to run directly on the cloud.")
+                st.info("Demo Mode: Your email format looks clean. Make sure to bind your `hibp-api-key` in the code headers!")
+            else:
+                st.error(f"Server connectivity issue: {data}")
