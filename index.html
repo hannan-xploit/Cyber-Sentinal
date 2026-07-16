@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👁️ CYBERINTEL SENTINEL</title>
+    <style>
+        :root {
+            --neon-blue: #00f0ff;
+            --neon-green: #39ff14;
+            --neon-red: #ff0055;
+            --cyber-dark: #030712;
+            --card-bg: #0b0f19;
+            --border-color: #1f2937;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--cyber-dark);
+            color: #e5e7eb;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 40px 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Animated Banner */
+        .neon-banner {
+            background: radial-gradient(circle, #090d1a 0%, var(--cyber-dark) 100%);
+            border: 2px solid var(--neon-blue);
+            border-radius: 12px;
+            padding: 35px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+            animation: pulse-glow 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(0, 240, 255, 0.2); border-color: #1f6feb; }
+            50% { box-shadow: 0 0 30px rgba(0, 240, 255, 0.6); border-color: var(--neon-blue); }
+        }
+
+        .neon-title {
+            color: var(--neon-blue);
+            font-size: 2.8rem;
+            font-weight: 900;
+            letter-spacing: 5px;
+            text-shadow: 0 0 15px rgba(0, 240, 255, 0.7);
+        }
+
+        .neon-subtitle {
+            color: #8b949e;
+            font-size: 1rem;
+            margin-top: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* Tabs System */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .tab-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: #8b949e;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .tab-btn.active, .tab-btn:hover {
+            color: var(--neon-blue);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+            background: #111827;
+        }
+
+        /* Console Panels */
+        .panel {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: fadeIn 0.4s ease;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--neon-blue);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .cyber-input {
+            width: 100%;
+            background: #030712;
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 1.1rem;
+            border-radius: 6px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .cyber-input:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+
+        .scan-btn {
+            background: linear-gradient(90deg, #1f6feb 0%, var(--neon-blue) 100%);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(31, 111, 235, 0.4);
+        }
+
+        .scan-btn:hover {
+            transform: scale(1.01);
+            box-shadow: 0 8px 25px rgba(0, 240, 255, 0.6);
+        }
+
+        /* Results Terminal Screen */
+        .terminal-output {
+            background: #02050a;
+            border: 1px solid #1f2937;
+            border-radius: 6px;
+            padding: 20px;
+            margin-top: 25px;
+            min-height: 150px;
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--neon-green);
+            position: relative;
+            overflow: hidden;
+            display: none;
+        }
+
+        .terminal-output.visible {
+            display: block;
+        }
+
+        .loading-bar {
+            width: 100%;
+            height: 4px;
+            background: #111827;
+            position: relative;
+            margin-bottom: 15px;
+            display: none;
+            overflow: hidden;
+        }
+
+        .loading-bar::after {
+            content: '';
+            display: block;
+            width: 30%;
+            height: 100%;
+            background: var(--neon-blue);
+            position: absolute;
+            animation: scanning 1.5s infinite linear;
+        }
+
+        @keyframes scanning {
+            0% { left: -30%; }
+            100% { left: 100%; }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 1px solid var(--border-color);
+            color: #6e7681;
+            font-size: 0.9rem;
+        }
+
+        .footer strong {
+            color: var(--neon-green);
+            text-shadow: 0 0 8px rgba(57, 255, 20, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="neon-banner">
+        <h1 class="neon-title">👁️ CYBERINTEL SENTINEL</h1>
+        <p class="neon-subtitle">Autonomous Threat Reconnaissance & Intelligence Hub</p>
+    </div>
+
+    <!-- Tabs Header -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('breach-tab')">🕵️‍♂️ Breach Radar</button>
+        <button class="tab-btn" onclick="switchTab('ip-tab')">🌐 IP Reputation</button>
+        <button class="tab-btn" onclick="switchTab('url-tab')">🛡️ Domain Analyzer</button>
+    </div>
+
+    <!-- TAB 1: BREACH RADAR -->
+    <div id="breach-tab" class="panel active">
+        <div class="input-group">
+            <label>Live Identity Leak Scan</label>
+            <input type="email" id="email-input" class="cyber-input" placeholder="target@domain.com">
+        </div>
+        <button class="scan-btn" onclick="runBreachScan()">Run Deep Identity Search</button>
+        
+        <div class="loading-bar" id="breach-loader"></div>
+        <div class="terminal-output" id="breach-output"></div>
+    </div>
+
+    <!-- TAB 2: IP REPUTATION -->
+    <div id="ip-tab" class="panel">
+        <div class="input-group">
+            <label>Host IP Threat Profiling</label>
+            <input type="text" id="ip-input" class="cyber-input" placeholder="e.g., 185.220.101.5">
+        </div>
+        <button class="scan-btn" onclick="runIpScan()">Decode IP Threat Profile</button>
+        
+        <div class="loading-bar" id="ip-loader"></div>
+        <div class="terminal-output" id="ip-output"></div>
+    </div>
+
+    <!-- TAB 3: DOMAIN ANALYZER -->
+    <div id="url-tab" class="panel">
+        <div class="input-group">
+            <label>Phishing & Deceptive Vector Isolation</label>
+            <input type="text" id="url-input" class="cyber-input" placeholder="e.g., secure-login-paypal.com">
+        </div>
+        <button class="scan-btn" onclick="runUrlScan()">Execute Envelope Deconstruction</button>
+        
+        <div class="loading-bar" id="url-loader"></div>
+        <div class="terminal-output" id="url-output"></div>
+    </div>
+
+    <div class="footer">
+        ⚡ CyberIntel Sentinel Engine | Architect: <strong>Hannan Ashraf</strong> (Junior Cyber Security Specialist)
+    </div>
+</div>
+
+<script>
+    // EDIT THIS LINK: Jab hum FastAPI deploy karenge, uska public link yahan paste karenge
+    const API_BASE_URL = "http://127.0.0.1:8000"; 
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    async function runBreachScan() {
+        const email = document.getElementById('email-input').value.trim();
+        const output = document.getElementById('breach-output');
+        const loader = document.getElementById('breach-loader');
+        
+        if(!email) { alert("Please fill identity vector."); return; }
+        
+        output.classList.remove('visible');
+        loader.style.display = 'block';
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/breach?email=${encodeURIComponent(email)}`);
+            const data = await res.json();
+            
+            loader.style.display = 'none';
+            output.classList.add('visible');
+
+            if(data.status === "success") {
+                if(data.compromised) {
+                    output.style.color = '#ff0055';
+                    output.innerHTML = `[!] ALERT: SECURITY BREACH DETECTED<br>
+                                        [#] Severity: ${data.severity}<br>
+                                        [#] Associated Leaks Found: ${data.leaks_found}<br>
+                                        ---------------------------------------------<br>
+                                        ${data.breaches.map(b => `[x] Leak Source: ${b}`).join('<br>')}<br>
+                                        ---------------------------------------------<br>
+                                        [i] Suggested Action: ${data.suggestion}`;
+                } else {
+                    output.style.color = '#39ff14';
+                    output.innerHTML = `[+] IDENTITY SECURE: No Leaks Registered<br>
+                                        [#] Severity: ${data.severity}<br>
+                                        [i] Shield Status: Safe. ${data.suggestion}`;
+                }
+            } else {
+                output.style.color = '#ff0055';
+                output.innerHTML = `[-] API Error: ${data.message}`;
+            }
+        } catch (err) {
+            loader.style.display = 'none';
+            output.classList.add('visible');
+            output.style.color = '#ff0055';
+            output.innerHTML = `[-] Connection Interrupted. Ensure your Backend API Server is active.`;
+        }
+    }
+
+    async function runIpScan() {
+        const ip = document.getElementById('ip-input').value.trim();
+        const output = document.getElementById('ip-output');
+        const loader = document.getElementById('ip-loader');
+
+        if(!ip) { alert("Please provide target IP."); return; }
+
+        output.classList.remove('visible');
+        loader.style.display = 'block';
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/reputation?ip=${encodeURIComponent(ip)}`);
+            const data = await res.json();
+
+            loader.style.display = 'none';
+            output.classList.add('visible');
+
+            if(data.status === "success") {
+                const isMalicious = data.risk.includes("HIGH");
+                output.style.color = isMalicious ? '#ff0055' : '#39ff14';
+                output.innerHTML = `[#] Target Checked: ${ip}<br>
+                                    [#] Reputation Status: ${data.risk}<br>
+                                    [#] Target Abuse Score: ${data.score}%<br>
+                                    [#] Category Signature: ${data.category}<br>
+                                    [#] ISP Origin: ${data.isp}<br>
+                                    [#] Geo Registry: ${data.country}`;
+            } else {
+                output.style.color = '#ff0055';
+                output.innerHTML = `[-] Validation Mismatch: ${data.message}`;
+            }
+        } catch (err) {
+            loader.style.display = 'none';
+            output.classList.add('visible');
+            output.style.color = '#ff0055';
+            output.innerHTML = `[-] Backend connection offline.`;
+        }
+    }
+
+    async function runUrlScan() {
+        const url = document.getElementById('url-input').value.trim();
+        const output = document.getElementById('url-output');
+        const loader = document.getElementById('url-loader');
+
+        if(!url) { alert("Input stream cannot be empty."); return; }
+
+        output.classList.remove('visible');
+        loader.style.display = 'block';
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/safety?url=${encodeURIComponent(url)}`);
+            const data = await res.json();
+
+            loader.style.display = 'none';
+            output.classList.add('visible');
+
+            if(data.status === "success") {
+                output.style.color = data.safe ? '#39ff14' : '#ff0055';
+                output.innerHTML = `[#] Domain: ${data.domain}<br>
+                                    [#] Verdict Code: ${data.verdict}<br>
+                                    [#] Fraud Risk Index: ${data.risk_score}/100<br>
+                                    ---------------------------------------------<br>
+                                    ${data.reasons.map(r => `[i] Flag: ${r}`).join('<br>')}<br>
+                                    ---------------------------------------------<br>
+                                    [!] Action: ${data.action_required}`;
+            } else {
+                output.style.color = '#ff0055';
+                output.innerHTML = `[-] Verification Error: ${data.message}`;
+            }
+        } catch (err) {
+            loader.style.display = 'none';
+            output.classList.add('visible');
+            output.style.color = '#ff0055';
+            output.innerHTML = `[-] Remote Engine Offline.`;
+        }
+    }
+</script>
+</body>
+</html>
